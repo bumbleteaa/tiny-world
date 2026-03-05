@@ -1,0 +1,1 @@
+// Interactiveable NPCs that can provide information, quests, or items to the player. They can be placed in various rooms and have different dialogue options based on the player's progress in the story. The NPCs can also have their own unique personalities and backstories, adding depth to the game world and making interactions more engaging for the player.

@@ -1,0 +1,1 @@
+// Data parsing and loading for world, including rooms, items, and interactions. This will read from JSON files that define the layout of each room, the items present, and the interactions available. It will then create the necessary objects in the game world based on this data.

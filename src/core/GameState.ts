@@ -1,0 +1,1 @@
+// Story progression, inventory, eg onRoomEnter, onRoomExit, onItemPickup, etc. Also for UI updates, e.g. when inventory changes.

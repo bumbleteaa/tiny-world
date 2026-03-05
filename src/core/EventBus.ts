@@ -1,0 +1,1 @@
+// Interclass communication, e.g. for story progression, inventory, etc.

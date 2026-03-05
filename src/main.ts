@@ -1,24 +1,25 @@
-import './style.css'
-import typescriptLogo from './typescript.svg'
-import viteLogo from '/vite.svg'
-import { setupCounter } from './counter.ts'
+import 'phaser';
+import MeadowWorld from './world/MeadowWorld';
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="${viteLogo}" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://www.typescriptlang.org/" target="_blank">
-      <img src="${typescriptLogo}" class="logo vanilla" alt="TypeScript logo" />
-    </a>
-    <h1>Vite + TypeScript</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite and TypeScript logos to learn more
-    </p>
-  </div>
-`
+const config: Phaser.Types.Core.GameConfig = {
+    type: Phaser.AUTO,
+    width: window.innerWidth,
+    height: window.innerHeight,
+    parent: 'game-container', // Pastikan ada <div id="game-container"> di index.html
+    pixelArt: true,           // WAJIB: Biar aset 32px lo tetep tajam, gak blur
+    backgroundColor: '#6990b8', // Langit malam Deep Purple
+    scale: {
+        mode: Phaser.Scale.RESIZE, // Biar pas di semua ukuran layar HP
+        autoCenter: Phaser.Scale.CENTER_BOTH
+    },
+    scene: [MeadowWorld], // Kita masukin MeadowWorld sebagai scene pertama
+    physics: {
+        default: 'arcade',
+        arcade: {
+            debug: false // Set true kalau nanti mau liat hitbox
+        }
+    }
+};
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
+// Inisialisasi Game
+new Phaser.Game(config);
