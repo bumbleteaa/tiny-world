@@ -14,12 +14,10 @@ export default class MeadowWorld extends BaseWorld {
 
     protected onTileCreated(tile: Phaser.GameObjects.Image, x: number, y: number): void {
         const lightTile = 0x2c3e50;
-        const darkTile = 0x283848;
 
-        const isEven = (x + y) % 2 === 0;
-        tile.setTint(isEven ? lightTile : darkTile);
+        tile.setTint(lightTile)
 
         tile.setOrigin(0.5, 0);
-        tile.setAlpha(0.99);
+        //tile.setAlpha(0.99);
     }
 }
