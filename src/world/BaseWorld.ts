@@ -35,9 +35,9 @@ export default abstract class BaseWorld extends Phaser.Scene {
     protected worldRoot!: Phaser.GameObjects.Container; //container based
 
     //Layer-layer dalam pembuatan world
-    protected groundLayer!: Phaser.GameObjects.Layer;
-    protected decorLayer!: Phaser.GameObjects.Layer;
-    protected entityLayer!: Phaser.GameObjects.Layer;
+    protected groundLayer!: Phaser.GameObjects.Container;
+    protected decorLayer!: Phaser.GameObjects.Container;
+    protected entityLayer!: Phaser.GameObjects.Container;
 
     protected worldSize = 13;
 
@@ -63,17 +63,14 @@ export default abstract class BaseWorld extends Phaser.Scene {
 
 
     update(): void {
-        this.decorLayer.list.forEach((child) => {
-            if (isDepthSortable(child)) {
-                child.setDepth(child.y);
-            }
-        });
+        const byY = (a: Phaser.GameObjects.GameObject, b: Phaser.GameObjects.GameObject): number => {
+            const ay = isDepthSortable(a) ? a.y : 0;
+            const by = isDepthSortable(b) ? b.y : 0;
+            return ay - by;
+        };
 
-        this.entityLayer.list.forEach((child) => {
-            if (isDepthSortable(child)) {
-                child.setDepth(child.y);
-            }
-        });
+        this.decorLayer.list.sort(byY);
+        this.entityLayer.list.sort(byY);
     }
 
 
@@ -83,15 +80,17 @@ export default abstract class BaseWorld extends Phaser.Scene {
     }
 
     protected createLayers(): void {
-        this.groundLayer = this.add.layer();
-        this.decorLayer = this.add.layer();
-        this.entityLayer = this.add.layer();
+        this.groundLayer = this.add.container(0, 0);
+        this.decorLayer = this.add.container(0, 0);
+        this.entityLayer = this.add.container(0, 0);
+
+        this.worldRoot.add([this.groundLayer, this.decorLayer, this.entityLayer])
     }
 
     protected buildGrid(): void {
         this.grid = [];
         for (let tx = 0; tx < this.worldSize; tx++) {
-            for (let ty = 0; ty = this.worldSize; ty++) {
+            for (let ty = 0; ty < this.worldSize; ty++) {
                 const { x, y } = this.getLocalTilePosition(tx, ty);
 
                 const tile = this.add.image(x, y, this.getBaseTileTexture(tx, ty));
@@ -112,7 +111,7 @@ export default abstract class BaseWorld extends Phaser.Scene {
                     occupied: false,
                     terrain: this.getTerrainType(tx, ty),
                 };
-
+                if (!this.grid[tx]) this.grid[tx] = []
                 this.grid[tx][ty] = node;
                 this.onTileCreated(node);
             }
@@ -120,7 +119,7 @@ export default abstract class BaseWorld extends Phaser.Scene {
     }
 
     protected setupCamera(): void {
-        this.cameras.main.setZoom(1, 5);
+        this.cameras.main.setZoom(1.5);
     }
 
     protected recenterWorld(): void {
@@ -186,9 +185,6 @@ export default abstract class BaseWorld extends Phaser.Scene {
         if (config.scale !== undefined) {
             object.setScale(config.scale);
         }
-
-        object.setDepth(object.y + (config.depthOffset ?? 0));
-        this.decorLayer.add(object);
 
         return object;
     }
