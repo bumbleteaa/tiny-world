@@ -2,31 +2,7 @@
 
 import Phaser from "phaser";
 import { IsoMath } from "../core/IsoMath";
-
-// Tile configuration
-type TileNode = {
-    tx: number;
-    ty: number;
-    worldX: number;
-    worldY: number;
-    base: Phaser.GameObjects.Image;
-    occupied: boolean;
-    terrain?: string;
-};
-
-//Decoration configuration
-type DecorConfig = {
-    tx: number;
-    ty: number;
-    texture: string;
-    frame?: string | number;
-    ox?: number;
-    oy?: number;
-    offsetX?: number;
-    offsetY?: number;
-    depthOffset?: number;
-    scale?: number;
-};
+import type { TileNode, DecorConfig } from "./WorldTypes";
 
 function isDepthSortable(child: Phaser.GameObjects.GameObject): child is Phaser.GameObjects.Image | Phaser.GameObjects.Sprite {
     return 'setDepth' in child && 'y' in child;
