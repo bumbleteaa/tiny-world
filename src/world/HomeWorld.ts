@@ -40,9 +40,12 @@ export default class HomeWorld extends BaseWorld {
     protected buildBaseDecorations(): void {
         const placement: DecorConfig[] = [
             //buat decoration manual di sini
+            //gugusan pohon
+            //bunga padang
             { tx: 2, ty: 2, texture: 'flower', ox: 0.5, oy: 1, offsetY: -8, scale: 0.3 },
             { tx: 2, ty: 2, texture: 'flower', ox: 0.5, oy: 1, offsetY: -5, scale: 0.3 },
             { tx: 10, ty: 2, texture: 'tree', ox: 0.5, oy: 1, offsetY: -4, scale: 0.3 },
+            { tx: 10, ty: 3, texture: 'tree', ox: 0.5, oy: 1, offsetY: -9, scale: 0.3 },
             { tx: 2, ty: 2, texture: 'flower', ox: 0.5, oy: 1, offsetY: -9, scale: 0.3 }
 
         ];

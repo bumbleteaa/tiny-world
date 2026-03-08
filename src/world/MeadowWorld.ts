@@ -4,6 +4,14 @@ import BaseWorld from "./BaseWorld";
 import type { TileNode } from "./WorldTypes";
 import type { DecorConfig } from "./WorldTypes";
 
+const POND_TILES = new Set([
+    '12,12', '12,11', '11,12', '11,11', '10,12', '10,11', '10,10', '11,10', '12,10', '12,9', '11,9', '12,8', '12,7', '9,12'
+]);
+
+const BORDER_TILES = new Set([
+    '8,12', '8,11', '9,11', '9,10', '9,9', '10,9', '10,8', '11,8', '11,7', '11,6', '12,6'
+])
+
 export default class MeadowWorld extends BaseWorld {
     constructor() {
         super('MeadowWorld');
@@ -13,6 +21,8 @@ export default class MeadowWorld extends BaseWorld {
     //asset prelaoder
     preload(): void {
         this.load.image('tile', 'assets/tile_024.png');
+        this.load.image('water', 'assets/tile_104.png')
+        this.load.image('dirt', 'assets/tile_020.png')
         this.load.image('flower', 'assets/tile_047.png');
         this.load.image('tree', 'assets/tile_116.png')
         this.load.image('branchwood', 'assets/tile_050.png')
@@ -29,24 +39,46 @@ export default class MeadowWorld extends BaseWorld {
 
     // ############################
 
-    protected getBaseTileTexture(_tx: number, _ty: number): string {
+    protected getBaseTileTexture(tx: number, ty: number): string {
+        const key = `${tx},${ty}`;
+        if (POND_TILES.has(key)) return 'water';
+        if (BORDER_TILES.has(key)) return 'dirt';
         return 'tile';
     }
 
     protected onTileCreated(node: TileNode): void {
-        node.base.setTint(0x5a8a3c)
+        if (POND_TILES.has(`${node.tx},${node.ty}`)) {
+            node.occupied = true;
+            node.terrain = 'water';
+        } else if (BORDER_TILES.has(`${node.tx},${node.ty}`)) {
+            node.terrain = 'dirt'
+        }
+        else {
+            node.base.setTint(0x5a8a3c)
+        }
     }
 
     protected buildBaseDecorations(): void {
         const placement: DecorConfig[] = [
-            { tx: 2, ty: 2, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.3 },
+            // * Semua dekorasi tentang pohon
+            // * koordinat x dan y (12.12)
+            //Gugusan pohon kiri atas
+            { tx: 2, ty: 2, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.4 },
             { tx: 3, ty: 2, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.3 },
-            { tx: 4, ty: 4, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.3 },
-            { tx: 5, ty: 3, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.3 },
-            { tx: 5, ty: 4, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.3 },
+            { tx: 2, ty: 3, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.3 },
+            { tx: 2, ty: 4, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.4 },
+            { tx: 3, ty: 3, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.3 },
+            { tx: 4, ty: 3, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.3 },
+            { tx: 3, ty: 4, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.3 },
             { tx: 4, ty: 5, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.4 },
-            { tx: 2, ty: 5, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.4 },
+            { tx: 2, ty: 5, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.3 },
             { tx: 3, ty: 3, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.4 },
+            { tx: 2, ty: 6, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.2 },
+            //Gugusan pohon kanan atas
+
+            //Pohon utama di tengah
+            { tx: 8, ty: 8, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.5 },
+
         ];
 
         placement.forEach(
