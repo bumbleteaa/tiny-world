@@ -196,7 +196,7 @@ export default abstract class BaseWorld extends Phaser.Scene {
         _ty: number
     ): void { }
 
-    protected onTileCreated(_tile: TileNode): void { }
+    protected onTileCreated(tile: TileNode): void { }
 
     protected buildBaseDecorations(): void { }
 
