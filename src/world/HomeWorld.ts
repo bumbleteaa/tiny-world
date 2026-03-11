@@ -62,10 +62,4 @@ export default class HomeWorld extends BaseWorld {
 
     }
 
-    private isBorderTile(tx: number, ty: number): boolean {
-        return (
-            tx === 0 || ty === 0 || tx === this.worldSize - 1 || ty === this.worldSize - 1
-        );
-    }
-
 }
