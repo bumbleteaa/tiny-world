@@ -1,25 +1,22 @@
-/**
- * BaseEntity.ts
- *
- * Abstract base for all living things in the world.
- * Owns: tile position, movement state machine, interaction contract.
- * Does NOT own: game rules, inventory, dialogue — those belong to subclasses.
- *
- * Visual strategy: a Phaser.GameObjects.Container holds a placeholder rectangle
- * that child classes swap out for a real sprite via replaceVisual().
- * This means zero positioning logic changes when sprites arrive.
- */
 
 import Phaser from 'phaser';
 import { IsoMath } from '../core/IsoMath';
 import { EventBus, GameEvent } from '../core/EventBus';
-import type { EntityConfig, MoveRequest } from './EntityType';
+import { Direction, type EntityConfig, type MoveRequest } from './EntityType';
 import { MovementState, InteractionResult } from './EntityType';
 
 const DEFAULT_MOVE_DURATION_MS = 200;
-//(removed once real sprites exist)
 const PLACEHOLDER_SIZE = 10;
 const DEFAULT_PLACEHOLDER_TINT = 0xffffff;
+
+// * Tile-step off set
+
+const DIRECTION_OFFSET: Record<Direction, { dtx: number; dty: number }> = {
+    [Direction.NORT]: { dtx: 0, dty: -1 },
+    [Direction.SOUTH]: { dtx: 0, dty: 1 },
+    [Direction.EAST]: { dtx: 1, dty: 0 },
+    [Direction.WEST]: { dtx: -1, dty: 0 },
+};
 
 
 export abstract class BaseEntity extends Phaser.GameObjects.Container {
@@ -38,7 +35,6 @@ export abstract class BaseEntity extends Phaser.GameObjects.Container {
     private _placeholder: Phaser.GameObjects.Rectangle;
 
     constructor(config: EntityConfig) {
-        // Container starts at world-space position derived from tile coords
         const worldPos = BaseEntity.tileToWorld(config.tx, config.ty, config.gridUnit);
         super(config.scene, worldPos.x, worldPos.y);
 
@@ -85,14 +81,13 @@ export abstract class BaseEntity extends Phaser.GameObjects.Container {
 
     public moveToTile(request: MoveRequest): boolean {
         if (this._movementState === MovementState.MOVING) {
-            return false; // Already committed to a move — caller must wait
+            return false;
         }
 
         const { toTx, toTy, durationMs = DEFAULT_MOVE_DURATION_MS } = request;
         const fromTx = this.tx;
         const fromTy = this.ty;
 
-        // Cancel any orphaned tween (safety net for edge cases)
         this._activeTween?.stop();
         this._activeTween = null;
 
@@ -116,17 +111,11 @@ export abstract class BaseEntity extends Phaser.GameObjects.Container {
             ease: 'Sine.easeInOut',
             onUpdate: () => this.syncDepth(),
             onComplete: () => this.onMoveComplete(toTx, toTy),
-            // If the scene shuts down mid-tween, onComplete won't fire.
-            // onComplete fires ONLY on natural completion, not on stop().
         });
 
         return true;
     }
 
-    /**
-     * Immediately halt movement. State returns to IDLE.
-     * Useful for knockback, cutscenes, or forced repositioning.
-     */
     public stopMovement(): void {
         this._activeTween?.stop();
         this._activeTween = null;
@@ -136,7 +125,6 @@ export abstract class BaseEntity extends Phaser.GameObjects.Container {
         }
     }
 
-    // ── Interaction ───────────────────────────────────────────────────────────
 
     public setInteractable(value: boolean): void {
         this._interactable = value;
@@ -199,6 +187,7 @@ export abstract class BaseEntity extends Phaser.GameObjects.Container {
         EventBus.emit(GameEvent.ENTITY_DESTROYED, { entityId: this.entityId });
     }
 
+    // * Static utility
     public static tileToWorld(
         tx: number,
         ty: number,

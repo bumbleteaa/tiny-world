@@ -59,10 +59,10 @@ export default class MeadowWorld extends BaseWorld {
             node.occupied = true;
             node.terrain = 'water';
         } else if (BORDER_TILES.has(`${node.tx},${node.ty}`)) {
-            node.terrain = 'dirt'
+            node.terrain = 'dirt';
         }
         else {
-            node.base.setTint(0x5a8a3c)
+            node.base.setTint(0x5a8a3c);
         }
     }
 

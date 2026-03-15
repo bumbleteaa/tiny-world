@@ -1,20 +1,8 @@
 // Interclass communication, e.g. for story progression, inventory, etc.
 
-/**
- * EventBus.ts
- * A typed singleton event bus for decoupled inter-system communication.
- *
- * Usage:
- *   EventBus.emit(GameEvent.ENTITY_INTERACT, { entityId: 'npc_01', ... });
- *   EventBus.on(GameEvent.ENTITY_INTERACT, handler, context);
- *   EventBus.off(GameEvent.ENTITY_INTERACT, handler, context); // Always in shutdown!
- */
 
 import Phaser from 'phaser';
 
-// ─── Event Catalogue ────────────────────────────────────────────────────────
-// All valid game events live here. Adding a new event = adding one line.
-// This is the single source of truth for inter-system communication.
 export const GameEvent = {
     ENTITY_SPAWNED: 'entity:spawned',
     ENTITY_DESTROYED: 'entity:destroyed',
@@ -35,8 +23,6 @@ export interface EventPayloadMap {
     [GameEvent.ENTITY_INTERACT_END]: { entityId: string };
     [GameEvent.STATE_CHANGED]: { key: string; value: unknown };
 }
-
-// ─── Typed Emitter ───────────────────────────────────────────────────────────
 
 class TypedEventEmitter extends Phaser.Events.EventEmitter {
     emit<K extends GameEvent>(event: K, payload: EventPayloadMap[K]): boolean {
@@ -68,5 +54,4 @@ class TypedEventEmitter extends Phaser.Events.EventEmitter {
     }
 }
 
-// ─── Singleton Export ────────────────────────────────────────────────────────
 export const EventBus = new TypedEventEmitter();
