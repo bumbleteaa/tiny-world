@@ -9,7 +9,7 @@ const DEFAULT_MOVE_DURATION_MS = 200;
 const PLACEHOLDER_SIZE = 10;
 const DEFAULT_PLACEHOLDER_TINT = 0xffffff;
 
-// * Tile-step off set
+// * Tile-step offset
 
 const DIRECTION_OFFSET: Record<Direction, { dtx: number; dty: number }> = {
     [Direction.NORT]: { dtx: 0, dty: -1 },
@@ -166,7 +166,7 @@ export abstract class BaseEntity extends Phaser.GameObjects.Container {
         this.setDepth(this.y + (this.tx + this.ty) * 0.001);
     }
 
-    /** Fires when a moveTo tween completes naturally. */
+    // * Fires when a moveTo tween completes naturally
     private onMoveComplete(toTx: number, toTy: number): void {
         this.tx = toTx;
         this.ty = toTy;

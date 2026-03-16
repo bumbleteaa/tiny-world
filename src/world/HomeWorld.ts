@@ -4,7 +4,7 @@ import BaseWorld from "./BaseWorld";
 import type { TileNode } from "./WorldTypes";
 import type { DecorConfig } from "./WorldTypes";
 
-const PAVE_TILES = new Set([
+const FARM_TILES = new Set([
     '9,5', '8,5', '7,5', '9,4', '8,4', '7,4', '7,3', '8,3', '9,3'
 ]);
 const FLOWER_BASE = new Set([
@@ -13,6 +13,12 @@ const FLOWER_BASE = new Set([
 const NATURAL_FENCE = new Set([
     '0,0', '1,0', '2,0', '5,0', '6,0', '7,0', '8,0', '9,0', '10,0',
     '0,9', '1,9', '2,9', '3,9', '4,9', '5,9', '6,9', '7,9', '8,9', '9,9', '10,9'
+]);
+const PAVE_TILES_1 = new Set([
+    '0,7', '1,8', '2,7', '3,8', '4,7', '5,8', '6,7', '7,8', '8,7', '9,8', '10,7', '5,6', '5,5'
+]);
+const PAVE_TILES_2 = new Set([
+    '0,8', '1,7', '2,8', '3,7', '4,8', '5,7', '6,8', '7,7', '8,8', '9,7', '10,8'
 ]);
 
 export default class HomeWorld extends BaseWorld {
@@ -34,6 +40,8 @@ export default class HomeWorld extends BaseWorld {
         this.load.image('natural-fence', 'assets/tile_036.png');
         this.load.image('fence-h', 'assets/fence_h.png');
         this.load.image('fence-v', 'assets/fence_v.png');
+        this.load.image('pave-tiles-1', 'assets/pave_tiles_1.png');
+        this.load.image('pave-tiles-2', 'assets/pave_tiles_2.png');
 
         //add some in the future
 
@@ -49,15 +57,17 @@ export default class HomeWorld extends BaseWorld {
 
     protected getBaseTileTexture(tx: number, ty: number): string {
         const key = `${tx},${ty}`;
-        if (PAVE_TILES.has(key)) return 'farm-tiles';
+        if (FARM_TILES.has(key)) return 'farm-tiles';
         if (FLOWER_BASE.has(key)) return 'flower-base';
         if (NATURAL_FENCE.has(key)) return 'natural-fence';
+        if (PAVE_TILES_1.has(key)) return 'pave-tiles-1';
+        if (PAVE_TILES_2.has(key)) return 'pave-tiles-2';
         return 'tile';
     }
 
 
     protected onTileCreated(node: TileNode): void {
-        if (PAVE_TILES.has(`${node.tx},${node.ty}`)) {
+        if (FARM_TILES.has(`${node.tx},${node.ty}`)) {
             node.occupied = true;
             node.terrain = 'farm-tiles';
         }
@@ -66,6 +76,12 @@ export default class HomeWorld extends BaseWorld {
         }
         else if (NATURAL_FENCE.has(`${node.tx},${node.ty}`)) {
             node.terrain = 'natural-fence'
+        }
+        else if (PAVE_TILES_1.has(`${node.tx},${node.ty}`)) {
+            node.terrain = 'pave-tiles-1'
+        }
+        else if (PAVE_TILES_2.has(`${node.tx},${node.ty}`)) {
+            node.terrain = 'pave-tiles-2'
         }
         else {
             node.base.setTint(0x5a8a3c);
@@ -81,25 +97,22 @@ export default class HomeWorld extends BaseWorld {
             //
             //Kebun kecil
             {
-                tx: 9, ty: 5, texture: 'flower-bed-1', ox: 0.5, oy: 1, offsetY: 3, scale: 0.5
+                tx: 1, ty: 5, texture: 'flower-bed-1', ox: 0.5, oy: 1, offsetY: 3, scale: 0.5
             },
             {
-                tx: 10, ty: 5, texture: 'flower-bed-1', ox: 0.5, oy: 1, offsetY: 3, scale: 0.5
+                tx: 2, ty: 5, texture: 'flower-bed-1', ox: 0.5, oy: 1, offsetY: 3, scale: 0.5
             },
             {
-                tx: 8, ty: 6, texture: 'flower-bed-1', ox: 0.5, oy: 1, offsetY: 3, scale: 0.5
+                tx: 1, ty: 6, texture: 'flower-bed-1', ox: 0.5, oy: 1, offsetY: 3, scale: 0.5
             },
             {
-                tx: 9, ty: 6, texture: 'flower-bed-1', ox: 0.5, oy: 1, offsetY: 3, scale: 0.5
+                tx: 2, ty: 6, texture: 'flower-bed-1', ox: 0.5, oy: 1, offsetY: 3, scale: 0.5
             },
             {
-                tx: 10, ty: 6, texture: 'flower-bed-1', ox: 0.5, oy: 1, offsetY: 3, scale: 0.5
+                tx: 1, ty: 4, texture: 'flower-bed-1', ox: 0.5, oy: 1, offsetY: 3, scale: 0.5
             },
             {
-                tx: 9, ty: 4, texture: 'flower-bed-1', ox: 0.5, oy: 1, offsetY: 3, scale: 0.5
-            },
-            {
-                tx: 10, ty: 4, texture: 'flower-bed-1', ox: 0.5, oy: 1, offsetY: 3, scale: 0.5
+                tx: 2, ty: 4, texture: 'flower-bed-1', ox: 0.5, oy: 1, offsetY: 3, scale: 0.5
             },
             //rumah
             {
