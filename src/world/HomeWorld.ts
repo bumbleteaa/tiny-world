@@ -23,7 +23,7 @@ const PAVE_TILES_2 = new Set([
 
 export default class HomeWorld extends BaseWorld {
     constructor() {
-        super('MeadowWorld');
+        super('HomeWorld');
         this.worldSize = 11; //Override size
     }
 

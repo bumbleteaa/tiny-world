@@ -1,6 +1,7 @@
 import 'phaser';
 import MeadowWorld from './world/MeadowWorld';
 import HomeWorld from './world/HomeWorld';
+import BedroomWorld from './world/BedroomWorld';
 
 const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
@@ -13,7 +14,7 @@ const config: Phaser.Types.Core.GameConfig = {
         mode: Phaser.Scale.RESIZE, // Biar pas di semua ukuran layar HP
         autoCenter: Phaser.Scale.CENTER_BOTH
     },
-    scene: [HomeWorld], // Kita masukin MeadowWorld sebagai scene pertama
+    scene: [BedroomWorld], // Kita masukin MeadowWorld sebagai scene pertama
     physics: {
         default: 'arcade',
         arcade: {

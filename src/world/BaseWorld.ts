@@ -135,7 +135,7 @@ export default abstract class BaseWorld extends Phaser.Scene {
         return this.getLocalTilePosition(middlePoint, middlePoint)
     }
 
-    protected markOccupoed(tx: number, ty: number, value = true): void {
+    protected markOccupied(tx: number, ty: number, value = true): void {
         const tile = this.getTileNode(tx, ty);
         if (tile) tile.occupied = value;
     }
