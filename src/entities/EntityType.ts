@@ -6,12 +6,16 @@ export const MovementState = {
 export type MovementState = typeof MovementState[keyof typeof MovementState];
 
 export const Direction = {
-    NORT: 'N',
+    NORTH: 'N',
     SOUTH: 'S',
     EAST: 'E',
     WEST: 'W',
+    NORTH_EAST: 'NE',
+    NORTH_WEST: 'NW',
+    SOUTH_EAST: 'SE',
+    SOUTH_WEST: 'SW',
 } as const;
-export type Direction = typeof Direction[keyof typeof Direction]
+export type Direction = typeof Direction[keyof typeof Direction];
 
 export const InteractionResult = {
     SUCCESS: 'success',

@@ -3,6 +3,8 @@
 import Phaser from "phaser";
 import { IsoMath } from "../core/IsoMath";
 import type { TileNode, DecorConfig } from "./WorldTypes";
+import { GridHelper } from '../core/GridHelper';
+
 
 function isDepthSortable(child: Phaser.GameObjects.GameObject): child is Phaser.GameObjects.Image | Phaser.GameObjects.Sprite {
     return 'setDepth' in child && 'y' in child;
@@ -21,6 +23,8 @@ export default abstract class BaseWorld extends Phaser.Scene {
 
     protected grid: TileNode[][] = [];
 
+    protected gridHelper!: GridHelper;
+
     constructor(key: string) {
         super(key);
     }
@@ -35,10 +39,11 @@ export default abstract class BaseWorld extends Phaser.Scene {
 
         this.scale.on("resize", this.handleResize, this);
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.onShutdown, this);
+        this.gridHelper = new GridHelper(this.worldSize);
     }
 
 
-    update(): void {
+    update(time: number, delta: number): void {
         const byY = (a: Phaser.GameObjects.GameObject, b: Phaser.GameObjects.GameObject): number => {
             const ay = isDepthSortable(a) ? a.y : 0;
             const by = isDepthSortable(b) ? b.y : 0;

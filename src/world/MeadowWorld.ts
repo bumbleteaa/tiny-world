@@ -1,8 +1,11 @@
 // specific 13 x 13 meadow and trees, outdoor experience and this is the player starting point. The player can explore the meadow, interact with trees and other natural elements, and find hidden items or clues that will help them progress through the story. The meadow will have a peaceful and serene atmosphere, with gentle music and ambient sounds to enhance the experience. The player can also encounter friendly animals or characters in the meadow who can provide information or assistance on their journey.
 
+import { Player } from "../entities/Player";
 import BaseWorld from "./BaseWorld";
 import type { TileNode } from "./WorldTypes";
 import type { DecorConfig } from "./WorldTypes";
+import { BaseEntity } from "../entities/BaseEntity";
+import { VirtualAnalog } from "../core/VirtualAnalog";
 
 const POND_TILES = new Set([
     '12,12', '12,11', '11,12', '11,11', '10,12', '10,11', '10,10', '11,10', '12,10', '12,9', '11,9', '12,8', '12,7', '9,12'
@@ -13,6 +16,8 @@ const BORDER_TILES = new Set([
 ])
 
 export default class MeadowWorld extends BaseWorld {
+    private player!: Player;
+    private analogStick!: VirtualAnalog;
     constructor() {
         super('MeadowWorld');
         this.worldSize = 13; //Override size
@@ -34,6 +39,8 @@ export default class MeadowWorld extends BaseWorld {
         this.load.image('fern', 'assets/tile_043.png');
         this.load.image('lonely-tree', 'assets/tile_115.png');
 
+        Player.preloadAssets(this);
+
 
         //add some in the future
 
@@ -41,8 +48,41 @@ export default class MeadowWorld extends BaseWorld {
 
     create(): void {
         super.create();
+        this.spawnPlayer();
+
+        this.events.once(
+            Phaser.Scenes.Events.SHUTDOWN,
+            this.onMeadowShutdown,
+            this
+        );
 
         //world-spesific setup here
+    }
+
+    update(time: number, delta: number): void {
+        super.update(time, delta);
+        this.player.tick(delta);
+    }
+
+    // Private Method
+    private spawnPlayer(): void {
+        this.analogStick = new VirtualAnalog(this, this.worldRoot);
+
+        this.player = new Player({
+            id: 'player_01',
+            scene: this,
+            tx: 6,
+            ty: 6,
+            gridUnit: this.gridUnit,
+            analogStick: this.analogStick,
+        });
+
+        this.player.initSprite();
+        this.placeEntityAtTile(6, 6, this.player);
+    }
+
+    private onMeadowShutdown(): void {
+        this.analogStick.destroy();
     }
 
     // ############################
