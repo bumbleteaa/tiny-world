@@ -62,14 +62,14 @@ export type TileInfo = {
 type TileDelta = Readonly<{ dtx: number; dty: number }>;
 
 const COMPASS_DELTAS: Record<CompassDir, TileDelta> = {
-    [CompassDir.NORTH]: { dtx: -1, dty: -1 },
-    [CompassDir.NORTH_EAST]: { dtx: 0, dty: -1 },
-    [CompassDir.EAST]: { dtx: 1, dty: -1 },
-    [CompassDir.SOUTH_EAST]: { dtx: 1, dty: 0 },
-    [CompassDir.SOUTH]: { dtx: 1, dty: 1 },
-    [CompassDir.SOUTH_WEST]: { dtx: 0, dty: 1 },
-    [CompassDir.WEST]: { dtx: -1, dty: 1 },
-    [CompassDir.NORTH_WEST]: { dtx: -1, dty: 0 },
+    [CompassDir.NORTH]: { dtx: 0, dty: -1 },  // atas-kanan (face)
+    [CompassDir.NORTH_EAST]: { dtx: 1, dty: -1 },  // sudut kanan atas
+    [CompassDir.EAST]: { dtx: 1, dty: 0 },  // bawah-kanan (face)
+    [CompassDir.SOUTH_EAST]: { dtx: 1, dty: 1 },  // sudut kanan bawah
+    [CompassDir.SOUTH]: { dtx: 0, dty: 1 },  // bawah-kiri (face)
+    [CompassDir.SOUTH_WEST]: { dtx: -1, dty: 1 },  // sudut kiri bawah
+    [CompassDir.WEST]: { dtx: -1, dty: 0 },  // atas-kiri (face)
+    [CompassDir.NORTH_WEST]: { dtx: -1, dty: -1 },  // sudut kiri atas (apex)
     [CompassDir.CENTER]: { dtx: 0, dty: 0 },
 };
 

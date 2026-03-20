@@ -6,6 +6,8 @@ import type { TileNode } from "./WorldTypes";
 import type { DecorConfig } from "./WorldTypes";
 import { BaseEntity } from "../entities/BaseEntity";
 import { VirtualAnalog } from "../core/VirtualAnalog";
+import { CompassDir, GridEdge } from "../core/GridHelper";
+import { IsoMath } from "../core/IsoMath";
 
 const POND_TILES = new Set([
     '12,12', '12,11', '11,12', '11,11', '10,12', '10,11', '10,10', '11,10', '12,10', '12,9', '11,9', '12,8', '12,7', '9,12'
@@ -18,10 +20,26 @@ const BORDER_TILES = new Set([
 export default class MeadowWorld extends BaseWorld {
     private player!: Player;
     private analogStick!: VirtualAnalog;
+
+    private debugGraphics?: Phaser.GameObjects.Graphics;
+    private debugTexts: Phaser.GameObjects.Text[] = [];
+    private debugVisible = false;
+
+    // Tile debugger color type
+    private static readonly TINT = {
+        inner: 0xffffff,
+        border: 0x9fe1cb,
+        corner: 0xafa9ec,
+    } as const;
+
     constructor() {
         super('MeadowWorld');
         this.worldSize = 13; //Override size
     }
+
+    // ! ===================================================
+    // !  WORLD INIT
+    // ! ===================================================
 
     //asset prelaoder
     preload(): void {
@@ -49,6 +67,8 @@ export default class MeadowWorld extends BaseWorld {
     create(): void {
         super.create();
         this.spawnPlayer();
+        this.setupDebugOverlay();
+        this.bindingDebugToggle();
 
         this.events.once(
             Phaser.Scenes.Events.SHUTDOWN,
@@ -64,7 +84,115 @@ export default class MeadowWorld extends BaseWorld {
         this.player.tick(delta);
     }
 
-    // Private Method
+    // ! ===================================================
+    // !  PRIVATE METHOD / HELPER METHOD
+    // ! ===================================================
+
+    // * ====== Grid Helper Debugger ======
+    // bindingDebugToggle() -- 
+    private bindingDebugToggle(): void {
+        this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.D).on('down', () => {
+            this.debugVisible = !this.debugVisible;
+            this.debugGraphics?.setVisible(this.debugVisible);
+            this.debugTexts.forEach(t => t.setVisible(this.debugVisible));
+        });
+    }
+
+    // setupDebugOverlay
+    private setupDebugOverlay(): void {
+        this.debugGraphics = this.add.graphics();
+        this.debugGraphics.setVisible(false);
+        this.entityLayer.add(this.debugGraphics);
+
+        for (let ty = 0; ty < this.worldSize; ty++) {
+            for (let tx = 0; tx < this.worldSize; tx++) {
+                this.drawDebugTile(tx, ty);
+            }
+        }
+
+        //Hide the text by default
+        this.debugTexts.forEach(t => t.setVisible(false));
+    }
+
+    // drawDebugTile
+    private drawDebugTile(tx: number, ty: number): void {
+        const info = this.gridHelper.getTileInfo(tx, ty);
+
+        // Converse to screen coordination via IsoMath
+        const { x, y } = IsoMath.tileToScreen(
+            tx, ty,
+            this.tileW,
+            this.tileH,
+            this.originX,
+            this.originY,
+        );
+
+        const color = info.isCorner ? 0x7f77dd :
+            info.isBorder ? 0x1d9e75 : 0x888780;
+
+        this.debugGraphics!.fillStyle(color, 0.8).fillCircle(x, y, 3);
+
+        const edgeShort = info.edge === GridEdge.NONE ? '' : ` [${info.edge.replace('CORNER_', '⌞')}]`;
+
+        const label = this.add.text(x, y - 14, `${tx},${ty}${edgeShort}`, {
+            fontSize: '9px',
+            color: '#ffffff',
+            stroke: '#000000',
+            strokeThickness: 2,
+            resolution: 2,
+        });
+        label.setOrigin(0.5, 1).setVisible(false);
+        this.debugTexts.push(label);
+        this.entityLayer.add(label);
+
+        const mid = Math.floor(this.worldSize / 2);
+        if (tx === mid && ty === mid) {
+            this.drawCompassArrows(tx, ty, x, y);
+        }
+    }
+
+    private drawCompassArrows(
+        tx: number, ty: number,
+        sx: number, sy: number,
+    ): void {
+        const dirs = this.gridHelper.getNeighborsAll(tx, ty);
+
+        for (const { tx: nx, ty: ny, dir } of dirs) {
+            const { x: nx2, y: ny2 } = IsoMath.tileToScreen(
+                nx, ny,
+                this.tileW,
+                this.tileH,
+                this.originX,
+                this.originY,
+            );
+
+            this.debugGraphics!.lineStyle(1, 0xef9f27, 0.6).lineBetween(sx, sy, nx2, ny2);
+
+            const mx = (sx + nx2) / 2;
+            const my = (sy + ny2) / 2;
+            const t = this.add.text(mx, my, dir, {
+                fontSize: '8px',
+                color: '#cf0000',
+                stroke: '000000',
+                strokeThickness: 2,
+                resolution: 2,
+            })
+            t.setOrigin(0.5).setVisible(false);
+            this.debugTexts.push(t);
+            this.entityLayer.add(t);
+        }
+    }
+
+    // Clean up - dont leak the listener if scene is shutdown
+    shutdown(): void {
+        this.debugTexts.forEach(t => t.destroy());
+        this.debugTexts = [];
+        this.debugGraphics?.destroy();
+        super.shutdown?.();
+    }
+
+    // * ====== Player Init ======
+
     private spawnPlayer(): void {
         this.analogStick = new VirtualAnalog(this, this.worldRoot);
 
@@ -85,7 +213,7 @@ export default class MeadowWorld extends BaseWorld {
         this.analogStick.destroy();
     }
 
-    // ############################
+    // * ====== World Appearance Init ======
 
     protected getBaseTileTexture(tx: number, ty: number): string {
         const key = `${tx},${ty}`;
@@ -98,7 +226,8 @@ export default class MeadowWorld extends BaseWorld {
         if (POND_TILES.has(`${node.tx},${node.ty}`)) {
             node.occupied = true;
             node.terrain = 'water';
-        } else if (BORDER_TILES.has(`${node.tx},${node.ty}`)) {
+        }
+        else if (BORDER_TILES.has(`${node.tx},${node.ty}`)) {
             node.terrain = 'dirt';
         }
         else {

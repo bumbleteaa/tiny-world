@@ -25,6 +25,11 @@ export default abstract class BaseWorld extends Phaser.Scene {
 
     protected gridHelper!: GridHelper;
 
+    protected readonly tileW: number = 32;   // lebar tile penuh (pixel)
+    protected readonly tileH: number = 16;   // tinggi tile penuh (pixel)
+    protected readonly originX: number = 0;  // pixel X titik awal grid
+    protected readonly originY: number = 0;  // pixel Y titik awal grid
+
     constructor(key: string) {
         super(key);
     }
@@ -54,8 +59,9 @@ export default abstract class BaseWorld extends Phaser.Scene {
         this.entityLayer.list.sort(byY);
     }
 
+    shutdown(): void {
 
-
+    }
     protected createWorldRoot(): void {
         this.worldRoot = this.add.container(0, 0);
     }
