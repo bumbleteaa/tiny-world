@@ -332,4 +332,12 @@ export class GridHelper {
 
         return lines.join('\n');
     }
+
+    private offsetX: number = 0;
+    private offsetY: number = 0;
+
+    public setOffset(x: number, y: number): void {
+        this.offsetX = x;
+        this.offsetY = y;
+    }
 }

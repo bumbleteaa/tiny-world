@@ -45,6 +45,7 @@ export default abstract class BaseWorld extends Phaser.Scene {
         this.scale.on("resize", this.handleResize, this);
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.onShutdown, this);
         this.gridHelper = new GridHelper(this.worldSize);
+        this.gridHelper.setOffset(this.worldRoot.x, this.worldRoot.y);
     }
 
 
@@ -162,7 +163,7 @@ export default abstract class BaseWorld extends Phaser.Scene {
 
         const object = this.add.image(
             tile.worldX + (config.offsetX ?? 0),
-            tile.worldY + (config.offsetY ?? 0),
+            tile.worldY + this.tileH + (config.offsetY ?? 0),
             config.texture,
             config.frame
         );
@@ -172,6 +173,8 @@ export default abstract class BaseWorld extends Phaser.Scene {
         if (config.scale !== undefined) {
             object.setScale(config.scale);
         }
+
+        this.decorLayer.add(object);
 
         return object;
     }

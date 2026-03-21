@@ -130,11 +130,14 @@ export default class MeadowWorld extends BaseWorld {
         const color = info.isCorner ? 0x7f77dd :
             info.isBorder ? 0x1d9e75 : 0x888780;
 
-        this.debugGraphics!.fillStyle(color, 0.8).fillCircle(x, y, 3);
+        const cx = x;
+        const cy = y + this.tileH / 2;
 
-        const edgeShort = info.edge === GridEdge.NONE ? '' : ` [${info.edge.replace('CORNER_', '⌞')}]`;
+        this.debugGraphics!.fillStyle(color, 0.8).fillCircle(cx, cy, 3);
 
-        const label = this.add.text(x, y - 14, `${tx},${ty}${edgeShort}`, {
+        // const edgeShort = info.edge === GridEdge.NONE ? '' : ` [${info.edge.replace('CORNER_', '⌞')}]`;
+
+        const label = this.add.text(cx, cy - 14, `${tx},${ty}`, {
             fontSize: '9px',
             color: '#ffffff',
             stroke: '#000000',
@@ -239,39 +242,38 @@ export default class MeadowWorld extends BaseWorld {
         const placement: DecorConfig[] = [
             // * Semua dekorasi tentang pohon
             // * koordinat x dan y (12.12)
-            //Gugusan pohon kiri atas
-            { tx: 2, ty: 2, texture: 'tree', ox: 0.5, oy: 1, offsetY: -6, scale: 0.4 },
-            { tx: 3, ty: 2, texture: 'tree', ox: 0.5, oy: 1, offsetY: 6, scale: 0.55 },
-            { tx: 2, ty: 3, texture: 'tree', ox: 0.5, oy: 1, offsetY: 0, scale: 0.3 },
-            { tx: 2, ty: 4, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.4 },
-            { tx: 3, ty: 3, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.3 },
-            { tx: 4, ty: 3, texture: 'tree', ox: 0.5, oy: 1, offsetY: -4, scale: 0.3 },
-            { tx: 3, ty: 4, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.3 },
-            { tx: 4, ty: 5, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.4 },
-            { tx: 2, ty: 5, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.3 },
-            { tx: 3, ty: 3, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.4 },
-            { tx: 2, ty: 6, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.2 },
-            { tx: 8, ty: 2, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.3 },
-            { tx: 7, ty: 2, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.4 },
-            { tx: 6, ty: 2, texture: 'tree', ox: 0.5, oy: 1, offsetY: -6, scale: 0.5 },
-            { tx: 4, ty: 2, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.3 },
-            { tx: 5, ty: 3, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.4 },
-            { tx: 5, ty: 4, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.3 },
-            { tx: 6, ty: 3, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.32 },
-            { tx: 7, ty: 3, texture: 'tree', ox: 0.5, oy: 1, offsetY: 0, scale: 0.5 },
+            // Gugusan pohon kiri atas
+            { tx: 1, ty: 1, texture: 'tree', ox: 0.5, oy: 1, offsetY: -6, scale: 0.4 },
+            { tx: 1, ty: 3, texture: 'tree', ox: 0.5, oy: 1, offsetY: 0, scale: 0.3 },
+            { tx: 1, ty: 4, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.4 },
+            { tx: 1, ty: 5, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.3 },
+            { tx: 1, ty: 6, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.2 },
+            { tx: 2, ty: 2, texture: 'tree', ox: 0.5, oy: 1, offsetY: 6, scale: 0.55 },
+            { tx: 2, ty: 3, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.4 },
+            { tx: 2, ty: 4, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.3 },
+            { tx: 3, ty: 2, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.3 },
+            { tx: 3, ty: 3, texture: 'tree', ox: 0.5, oy: 1, offsetY: -4, scale: 0.3 },
+            { tx: 3, ty: 5, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.4 },
+            { tx: 4, ty: 3, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.4 },
+            { tx: 4, ty: 4, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.3 },
+            { tx: 5, ty: 2, texture: 'tree', ox: 0.5, oy: 1, offsetY: -6, scale: 0.5 },
+            { tx: 5, ty: 3, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.32 },
+            { tx: 6, ty: 2, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.4 },
+            { tx: 6, ty: 3, texture: 'tree', ox: 0.5, oy: 1, offsetY: 0, scale: 0.5 },
+            { tx: 7, ty: 2, texture: 'tree', ox: 0.5, oy: 1, offsetY: -8, scale: 0.3 },
 
             // * Forest ornament
-            { tx: 5, ty: 3, texture: 'branchwood-horizontal', ox: 0.5, oy: 1, offsetY: -5, scale: 0.35 },
-            { tx: 5, ty: 3, texture: 'branchwood-horizontal', ox: 0.5, oy: 1, offsetY: 5, scale: 0.5 },
-            { tx: 2, ty: 4, texture: 'branchwood-vertical', ox: 0.5, oy: 1, offsetY: 4, scale: 0.35 },
-            { tx: 2, ty: 4, texture: 'branchwood-horizontal', ox: 0.5, oy: 1, offsetY: -1, scale: 0.5 },
-            { tx: 2, ty: 4, texture: 'forest-flower', ox: 0.5, oy: 1, offsetY: 6, scale: 0.5 },
-            { tx: 2, ty: 5, texture: 'forest-flower', ox: 0.5, oy: 1, offsetY: -6, scale: 0.4 },
-            { tx: 5, ty: 4, texture: 'forest-flower', ox: 0.5, oy: 1, offsetY: -6, scale: 0.4 },
-            { tx: 4, ty: 4, texture: 'forest-flower', ox: 0.5, oy: 1, offsetY: -3, scale: 0.3 },
-            { tx: 7, ty: 2, texture: 'branchwood-horizontal', ox: 0.5, oy: 1, offsetY: -1, scale: 0.35 },
-            { tx: 7, ty: 2, texture: 'branchwood-vertical', ox: 0.5, oy: 1, offsetY: 8, scale: 0.5 },
-            { tx: 7, ty: 3, texture: 'forest-flower', ox: 0.5, oy: 1, offsetY: -4, scale: 0.5 },
+            { tx: 1, ty: 4, texture: 'branchwood-vertical', ox: 0.5, oy: 1, offsetY: 4, scale: 0.35 },
+            { tx: 1, ty: 4, texture: 'branchwood-horizontal', ox: 0.5, oy: 1, offsetY: -1, scale: 0.5 },
+            { tx: 1, ty: 4, texture: 'forest-flower', ox: 0.5, oy: 1, offsetY: 6, scale: 0.5 },
+            { tx: 1, ty: 5, texture: 'forest-flower', ox: 0.5, oy: 1, offsetY: -6, scale: 0.4 },
+            { tx: 3, ty: 4, texture: 'forest-flower', ox: 0.5, oy: 1, offsetY: -3, scale: 0.3 },
+            { tx: 4, ty: 3, texture: 'branchwood-horizontal', ox: 0.5, oy: 1, offsetY: -5, scale: 0.35 },
+            { tx: 4, ty: 3, texture: 'branchwood-horizontal', ox: 0.5, oy: 1, offsetY: 5, scale: 0.5 },
+            { tx: 4, ty: 4, texture: 'forest-flower', ox: 0.5, oy: 1, offsetY: -6, scale: 0.4 },
+            { tx: 6, ty: 2, texture: 'branchwood-horizontal', ox: 0.5, oy: 1, offsetY: -1, scale: 0.35 },
+            { tx: 6, ty: 2, texture: 'branchwood-vertical', ox: 0.5, oy: 1, offsetY: 8, scale: 0.5 },
+            { tx: 6, ty: 3, texture: 'forest-flower', ox: 0.5, oy: 1, offsetY: -4, scale: 0.5 },
 
 
             //Pohon utama di tengah
@@ -299,17 +301,20 @@ export default class MeadowWorld extends BaseWorld {
 
 
             // * Ornamen Kolam
-            { tx: 10, ty: 12, texture: 'stone', ox: 0.5, oy: 1, offsetY: 0, scale: 0.8 },
-            { tx: 10, ty: 11, texture: 'stone', ox: 0.5, oy: 1, offsetY: 4, scale: 0.7 },
-            { tx: 9, ty: 12, texture: 'riverside-flower', ox: 0.5, oy: 1, offsetY: 6, scale: 0.7 },
-            { tx: 10, ty: 9, texture: 'riverside-flower', ox: 0.5, oy: 1, offsetY: 6, scale: 0.7 },
+            { tx: 8, ty: 12, texture: 'riverside-flower', ox: 0.5, oy: 1, offsetY: 6, scale: 0.7 },
+            { tx: 9, ty: 8, texture: 'riverside-flower', ox: 0.5, oy: 1, offsetY: 8, scale: 0.7 },
+            { tx: 9, ty: 9, texture: 'riverside-flower', ox: 0.5, oy: 1, offsetY: 6, scale: 0.7 },
+            { tx: 9, ty: 11, texture: 'stone', ox: 0.5, oy: 1, offsetY: 4, scale: 0.7 },
+            { tx: 9, ty: 11, texture: 'water-plant', ox: 0.5, oy: 1, offsetY: 6, scale: 0.6 },
+            { tx: 9, ty: 12, texture: 'stone', ox: 0.5, oy: 1, offsetY: 0, scale: 0.8 },
             { tx: 10, ty: 8, texture: 'riverside-flower', ox: 0.5, oy: 1, offsetY: 8, scale: 0.7 },
-            { tx: 11, ty: 8, texture: 'riverside-flower', ox: 0.5, oy: 1, offsetY: 8, scale: 0.7 },
-            { tx: 10, ty: 11, texture: 'water-plant', ox: 0.5, oy: 1, offsetY: 6, scale: 0.6 },
-            { tx: 12, ty: 8, texture: 'fern', ox: 0.5, oy: 1, offsetY: 6, scale: 1 },
-            { tx: 12, ty: 9, texture: 'fern', ox: 0.5, oy: 1, offsetY: 6, scale: 0.8 },
-            { tx: 12, ty: 7, texture: 'stone', ox: 0.5, oy: 1, offsetY: 4, scale: 1 },
-            { tx: 11, ty: 11, texture: 'branchwood-vertical', ox: 0.5, oy: 1, offsetY: -3, scale: 0.7 },
+            { tx: 10, ty: 11, texture: 'branchwood-vertical', ox: 0.5, oy: 1, offsetY: -3, scale: 0.7 },
+            { tx: 11, ty: 7, texture: 'stone', ox: 0.5, oy: 1, offsetY: 4, scale: 1 },
+            { tx: 11, ty: 8, texture: 'fern', ox: 0.5, oy: 1, offsetY: 6, scale: 1 },
+            { tx: 11, ty: 9, texture: 'fern', ox: 0.5, oy: 1, offsetY: 6, scale: 0.8 },
+
+            //Test
+            { tx: 0, ty: 0, texture: 'branchwood-vertical', ox: 0.5, oy: 1, offsetY: 0, scale: 0.7 },
 
         ];
 

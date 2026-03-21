@@ -58,5 +58,15 @@ export class IsoMath {
             ty: (relY / (tileH / 2) - relX / (tileW / 2)) / 2,
         };
     }
+}
 
+export function getWorldCenterOffset(
+    worldSize: number,
+    tileW: number,
+    tileH: number
+): { x: number; y: number } {
+    return {
+        x: 0,
+        y: ((worldSize - 1) * tileH) / 2,
+    }
 }
