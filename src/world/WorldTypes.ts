@@ -41,6 +41,7 @@ export type TileNode = {
     base: Phaser.GameObjects.Image;
     occupied: boolean;
     terrain?: string;
+    isTroughable: boolean;
 };
 
 export type DecorConfig = {

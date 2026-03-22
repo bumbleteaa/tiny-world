@@ -98,6 +98,7 @@ export default abstract class BaseWorld extends Phaser.Scene {
                     base: tile,
                     occupied: false,
                     terrain: this.getTerrainType(tx, ty),
+                    isTroughable: true,
                 };
                 if (!this.grid[tx]) this.grid[tx] = []
                 this.grid[tx][ty] = node;
@@ -155,6 +156,52 @@ export default abstract class BaseWorld extends Phaser.Scene {
     protected isOccupied(tx: number, ty: number): boolean {
         const tile = this.getTileNode(tx, ty);
         return tile ? tile.occupied : true;
+    }
+
+    // * Can the entity pass the tile?
+    public isWalkable(tx: number, ty: number): boolean {
+        // If coordinate = negative, walkable is false
+        // If cordinate more size worldSize, walkable is false
+        if (tx < 0 || ty < 0 || tx >= this.worldSize || ty >= this.worldSize) {
+            return false;
+        }
+
+        const tile = this.getTileNode(tx, ty); //put the object's data
+        if (!tile) return false; //Null check
+        return tile.isTroughable && !tile.occupied; //return the isWalkable when the tile is troughable and not occupied
+    }
+
+    // * Pixel coordinate to tile grid
+    public worldToTile(worldX: number, worldY: number): {
+        tx: number;
+        ty: number;
+    } {
+        //The world coordinate offset normalization
+        const localX = worldX - this.worldRoot.x;
+        const localY = worldY - this.worldRoot.y;
+
+        //Call the IsoMath.screenToTile operation
+        const raw = IsoMath.screenToTile(
+            localX, localY,
+            this.tileW,
+            this.tileH,
+            this.originX,
+            this.originY,
+        );
+        return {
+            //return to the round number
+            tx: Math.round(raw.tx),
+            ty: Math.round(raw.ty),
+        };
+    }
+
+    // * Screen pixel (input touch) to tile grid
+    public screenToTile(screenX: number, screenY: number): {
+        tx: number;
+        ty: number
+    } {
+        const worldPoint = this.cameras.main.getWorldPoint(screenX, screenY);
+        return this.worldToTile(worldPoint.x, worldPoint.y);
     }
 
     protected placeDecoration(config: DecorConfig): Phaser.GameObjects.Image | null {

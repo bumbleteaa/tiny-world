@@ -42,7 +42,6 @@ export class IsoMath {
     }
 
     // * Convert tile pixel into tile coordinate
-
     public static screenToTile(
         sx: number,
         sy: number,

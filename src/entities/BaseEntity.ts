@@ -24,6 +24,7 @@ import { EventBus, GameEvent } from '../core/EventBus';
 import type { EntityConfig, MoveRequest } from './EntityType';
 import { MovementState, Direction, InteractionResult } from './EntityType';
 
+
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 /** Durasi default tween pergerakan satu tile (ms). Override via MoveRequest.durationMs. */
@@ -77,29 +78,17 @@ export abstract class BaseEntity extends Phaser.GameObjects.Container {
      */
     private _facing: Direction = Direction.SOUTH;
 
-    // ── Movement state machine ────────────────────────────────────────────────
+    // ── Movement state machine 
     private _movementState: MovementState = MovementState.IDLE;
     private _activeTween: Phaser.Tweens.Tween | null = null;
 
     // ── Interaction ───────────────────────────────────────────────────────────
     private _interactable: boolean;
-
-    // ── Visual layer ──────────────────────────────────────────────────────────
+    private readonly _walkabilityChecker: ((tx: number, ty: number) => boolean) | null;
     private _visual: Phaser.GameObjects.Rectangle | Phaser.GameObjects.Sprite;
 
     // ─────────────────────────────────────────────────────────────────────────
     constructor(config: EntityConfig) {
-        /*
-         * UNDER THE HOOD — Constructor flow:
-         *
-         * 1. Hitung world position dari tile coords via IsoMath
-         * 2. Panggil super() → Container terpasang di koordinat world tersebut
-         * 3. Buat placeholder rectangle sebagai visual sementara
-         * 4. add.existing(this) → daftarkan Container ke scene display list
-         * 5. syncDepth() → depth awal benar sejak frame pertama
-         * 6. Emit ENTITY_SPAWNED → GameState atau sistem lain bisa track entity ini
-         * 7. Pasang DESTROY listener → cleanup otomatis saat entity di-remove
-         */
         const worldPos = BaseEntity.tileToWorld(config.tx, config.ty, config.gridUnit);
         super(config.scene, worldPos.x, worldPos.y);
 
@@ -108,6 +97,9 @@ export abstract class BaseEntity extends Phaser.GameObjects.Container {
         this.ty = config.ty;
         this.gridUnit = config.gridUnit;
         this._interactable = config.interactable ?? false;
+
+        // Null jika tidak di-inject — entity bebas collision
+        this._walkabilityChecker = config.walkabilityChecker ?? null;
 
         const placeholder = config.scene.add.rectangle(
             0, 0, PLACEHOLDER_SIZE, PLACEHOLDER_SIZE, DEFAULT_PLACEHOLDER_TINT
@@ -237,15 +229,23 @@ export abstract class BaseEntity extends Phaser.GameObjects.Container {
      *
      * Mengembalikan false jika sedang bergerak (diteruskan dari moveTo()).
      */
+
     public moveInDirection(dir: Direction, durationMs?: number): boolean {
         const { dtx, dty } = DIRECTION_OFFSET[dir];
+        const toTx = this.tx + dtx;
+        const toTy = this.ty + dty;
+
+        // Update facing dulu — bahkan jika tile tujuan terblokir.
+        // UNDER THE HOOD: Player harus menghadap ke tembok yang dicoba
+        // ditembus, bukan balik badan. UX terasa natural.
         this.setFacing(dir);
 
-        return this.requestMoveTo({
-            toTx: this.tx + dtx,
-            toTy: this.ty + dty,
-            durationMs,
-        });
+        // Cek collision — hanya jika checker di-inject
+        if (this._walkabilityChecker !== null && !this._walkabilityChecker(toTx, toTy)) {
+            return false; // Tile terblokir — tween tidak dimulai
+        }
+
+        return this.requestMoveTo({ toTx, toTy, durationMs });
     }
 
     /**

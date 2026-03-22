@@ -26,15 +26,12 @@ export type InteractionResult = typeof InteractionResult[keyof typeof Interactio
 
 export interface EntityConfig {
     id: string;
-
     tx: number;
     ty: number;
-
     gridUnit: number;
-
     scene: Phaser.Scene;
-
     interactable?: boolean;
+    walkabilityChecker?: (tx: number, ty: number) => boolean;
 }
 
 export interface MoveRequest {

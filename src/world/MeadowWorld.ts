@@ -4,9 +4,7 @@ import { Player } from "../entities/Player";
 import BaseWorld from "./BaseWorld";
 import type { TileNode } from "./WorldTypes";
 import type { DecorConfig } from "./WorldTypes";
-import { BaseEntity } from "../entities/BaseEntity";
 import { VirtualAnalog } from "../core/VirtualAnalog";
-import { CompassDir, GridEdge } from "../core/GridHelper";
 import { IsoMath } from "../core/IsoMath";
 
 const POND_TILES = new Set([
@@ -24,13 +22,6 @@ export default class MeadowWorld extends BaseWorld {
     private debugGraphics?: Phaser.GameObjects.Graphics;
     private debugTexts: Phaser.GameObjects.Text[] = [];
     private debugVisible = false;
-
-    // Tile debugger color type
-    private static readonly TINT = {
-        inner: 0xffffff,
-        border: 0x9fe1cb,
-        corner: 0xafa9ec,
-    } as const;
 
     constructor() {
         super('MeadowWorld');
@@ -206,6 +197,7 @@ export default class MeadowWorld extends BaseWorld {
             ty: 6,
             gridUnit: this.gridUnit,
             analogStick: this.analogStick,
+            walkabilityChecker: (tx, ty) => this.isWalkable(tx, ty),
         });
 
         this.player.initSprite();
@@ -229,9 +221,11 @@ export default class MeadowWorld extends BaseWorld {
         if (POND_TILES.has(`${node.tx},${node.ty}`)) {
             node.occupied = true;
             node.terrain = 'water';
+            node.isTroughable = false;
         }
         else if (BORDER_TILES.has(`${node.tx},${node.ty}`)) {
             node.terrain = 'dirt';
+            node.isTroughable = false;
         }
         else {
             node.base.setTint(0x5a8a3c);
@@ -328,12 +322,6 @@ export default class MeadowWorld extends BaseWorld {
             }
         );
 
-    }
-
-    private isBorderTile(tx: number, ty: number): boolean {
-        return (
-            tx === 0 || ty === 0 || tx === this.worldSize - 1 || ty === this.worldSize - 1
-        );
     }
 
 }
