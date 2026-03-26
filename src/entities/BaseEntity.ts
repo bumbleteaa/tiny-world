@@ -56,14 +56,8 @@ const DIRECTION_OFFSET: Record<Direction, { dtx: number; dty: number }> = {
     [Direction.SOUTH_EAST]: { dtx: 1, dty: 1 },
     [Direction.SOUTH_WEST]: { dtx: -1, dty: 1 },
 };
-
-// ─── BaseEntity ──────────────────────────────────────────────────────────────
 export abstract class BaseEntity extends Phaser.GameObjects.Container {
-
-    // ── Identity ──────────────────────────────────────────────────────────────
     public readonly entityId: string;
-
-    // ── Logical position (tile-space) ─────────────────────────────────────────
     protected tx: number;
     protected ty: number;
     protected readonly gridUnit: number;
@@ -77,12 +71,8 @@ export abstract class BaseEntity extends Phaser.GameObjects.Container {
      * gerakan terakhir, NPC yang diam akan selalu menghadap south selamanya.
      */
     private _facing: Direction = Direction.SOUTH;
-
-    // ── Movement state machine 
     private _movementState: MovementState = MovementState.IDLE;
     private _activeTween: Phaser.Tweens.Tween | null = null;
-
-    // ── Interaction ───────────────────────────────────────────────────────────
     private _interactable: boolean;
     private readonly _walkabilityChecker: ((tx: number, ty: number) => boolean) | null;
     private _visual: Phaser.GameObjects.Rectangle | Phaser.GameObjects.Sprite;

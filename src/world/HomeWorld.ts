@@ -1,8 +1,10 @@
 // 11 x 11 and 5 x 5 for interior and exterior, respectively. Each tile is 32 x 32 pixels. The world will be made up of multiple rooms, each with its own layout and interactions. The player can move between rooms, interact with items, and progress through the story.
 
 import BaseWorld from "./BaseWorld";
+import { Player } from "../entities/Player";
 import type { TileNode } from "./WorldTypes";
 import type { DecorConfig } from "./WorldTypes";
+import { VirtualAnalog } from "../core/VirtualAnalog";
 import { IsoMath } from "../core/IsoMath";
 
 const FARM_TILES = new Set([
@@ -23,6 +25,8 @@ const PAVE_TILES_2 = new Set([
 ]);
 
 export default class HomeWorld extends BaseWorld {
+    private player!: Player;
+    private analogStick!: VirtualAnalog;
 
     private debugGraphics?: Phaser.GameObjects.Graphics;
     private debugTexts: Phaser.GameObjects.Text[] = [];
@@ -49,22 +53,29 @@ export default class HomeWorld extends BaseWorld {
         this.load.image('pave-tiles-1', 'assets/pave_tiles_1.png');
         this.load.image('pave-tiles-2', 'assets/pave_tiles_2.png');
 
+        Player.preloadAssets(this);
         //add some in the future
 
     }
 
     create(): void {
         super.create();
+        this.spawnPlayer();
         this.setupDebugOverlay();
         this.bindingDebugToggle();
 
-        // this.events.once(
-        //     Phaser.Scenes.Events.SHUTDOWN,
-        //     this.onMeadowShutdown,
-        //     this
-        // );
+        this.events.once(
+            Phaser.Scenes.Events.SHUTDOWN,
+            this.onHomeShutdown,
+            this
+        );
 
         //world-spesific setup here
+    }
+
+    update(time: number, delta: number): void {
+        super.update(time, delta);
+        this.player.tick(delta);
     }
 
     // 
@@ -176,6 +187,29 @@ export default class HomeWorld extends BaseWorld {
 
     // ############################
 
+    // * ====== Player Init ======
+
+    private spawnPlayer(): void {
+        this.analogStick = new VirtualAnalog(this, this.worldRoot);
+
+        this.player = new Player({
+            id: 'player_01',
+            scene: this,
+            tx: 6,
+            ty: 6,
+            gridUnit: this.gridUnit,
+            analogStick: this.analogStick,
+            walkabilityChecker: (tx, ty) => this.isWalkable(tx, ty),
+        });
+
+        this.player.initSprite();
+        this.placeEntityAtTile(6, 6, this.player);
+    }
+
+    private onHomeShutdown(): void {
+        this.analogStick.destroy();
+    }
+
     protected getBaseTileTexture(tx: number, ty: number): string {
         const key = `${tx},${ty}`;
         if (FARM_TILES.has(key)) return 'farm-tiles';
@@ -191,21 +225,27 @@ export default class HomeWorld extends BaseWorld {
         if (FARM_TILES.has(`${node.tx},${node.ty}`)) {
             node.occupied = true;
             node.terrain = 'farm-tiles';
+            node.isTroughable = false;
         }
         else if (FLOWER_BASE.has(`${node.tx},${node.ty}`)) {
             node.terrain = 'flower-base'
+            node.isTroughable = false;
         }
         else if (NATURAL_FENCE.has(`${node.tx},${node.ty}`)) {
             node.terrain = 'natural-fence'
+            node.isTroughable = false;
         }
         else if (PAVE_TILES_1.has(`${node.tx},${node.ty}`)) {
             node.terrain = 'pave-tiles-1'
+            node.isTroughable = true;
         }
         else if (PAVE_TILES_2.has(`${node.tx},${node.ty}`)) {
             node.terrain = 'pave-tiles-2'
+            node.isTroughable = true;
         }
         else {
             node.base.setTint(0x5a8a3c);
+            node.isTroughable = false;
         }
 
     }

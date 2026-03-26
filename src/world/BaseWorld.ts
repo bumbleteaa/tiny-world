@@ -10,21 +10,19 @@ function isDepthSortable(child: Phaser.GameObjects.GameObject): child is Phaser.
     return 'setDepth' in child && 'y' in child;
 }
 export default abstract class BaseWorld extends Phaser.Scene {
-    protected worldRoot!: Phaser.GameObjects.Container; //container based
+    // ! =======================================================================
+    // ! CLASS PROPERTIES
+    // ! =======================================================================
 
+    protected worldRoot!: Phaser.GameObjects.Container; //container based
     //Layer-layer dalam pembuatan world
     protected groundLayer!: Phaser.GameObjects.Container;
     protected decorLayer!: Phaser.GameObjects.Container;
     protected entityLayer!: Phaser.GameObjects.Container;
-
     protected worldSize = 13;
-
     protected gridUnit = 16;
-
     protected grid: TileNode[][] = [];
-
     protected gridHelper!: GridHelper;
-
     protected readonly tileW: number = 32;   // lebar tile penuh (pixel)
     protected readonly tileH: number = 16;   // tinggi tile penuh (pixel)
     protected readonly originX: number = 0;  // pixel X titik awal grid
@@ -34,6 +32,11 @@ export default abstract class BaseWorld extends Phaser.Scene {
         super(key);
     }
 
+    // ! =======================================================================
+    // ! PHASER SCENE LIFECYCLE
+    // ! =======================================================================
+
+    // * Object initialization when the scene just get started
     create(): void {
         this.createWorldRoot();
         this.createLayers();
@@ -41,14 +44,13 @@ export default abstract class BaseWorld extends Phaser.Scene {
         this.buildBaseDecorations();
         this.setupCamera();
         this.recenterWorld();
-
         this.scale.on("resize", this.handleResize, this);
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.onShutdown, this);
         this.gridHelper = new GridHelper(this.worldSize);
         this.gridHelper.setOffset(this.worldRoot.x, this.worldRoot.y);
     }
 
-
+    // * Per-frame loop for depth sorting (Y-Sorting)
     update(time: number, delta: number): void {
         const byY = (a: Phaser.GameObjects.GameObject, b: Phaser.GameObjects.GameObject): number => {
             const ay = isDepthSortable(a) ? a.y : 0;
@@ -60,13 +62,19 @@ export default abstract class BaseWorld extends Phaser.Scene {
         this.entityLayer.list.sort(byY);
     }
 
-    shutdown(): void {
+    // * Empty the resource when the scene just get closed
+    shutdown(): void { }
 
-    }
+    // ! =======================================================================
+    // ! LAYOUT INITIALIZER 
+    // ! =======================================================================
+
+    // * Main container or root for entire object in concrete world
     protected createWorldRoot(): void {
         this.worldRoot = this.add.container(0, 0);
     }
 
+    // * World hierarchy of layer (ground -> decoration -> entity) in the root
     protected createLayers(): void {
         this.groundLayer = this.add.container(0, 0);
         this.decorLayer = this.add.container(0, 0);
@@ -75,6 +83,7 @@ export default abstract class BaseWorld extends Phaser.Scene {
         this.worldRoot.add([this.groundLayer, this.decorLayer, this.entityLayer])
     }
 
+    // * Coordinate iteration for ground tile building
     protected buildGrid(): void {
         this.grid = [];
         for (let tx = 0; tx < this.worldSize; tx++) {
@@ -87,7 +96,6 @@ export default abstract class BaseWorld extends Phaser.Scene {
                 tile.setOrigin(origin.x, origin.y);
 
                 this.applyBaseTileStyle(tile, tx, ty);
-
                 this.groundLayer.add(tile);
 
                 const node: TileNode = {
@@ -100,7 +108,8 @@ export default abstract class BaseWorld extends Phaser.Scene {
                     terrain: this.getTerrainType(tx, ty),
                     isTroughable: true,
                 };
-                if (!this.grid[tx]) this.grid[tx] = []
+                if (!this.grid[tx]) this.grid[tx] = [];
+
                 this.grid[tx][ty] = node;
                 this.onTileCreated(node);
             }
@@ -124,8 +133,12 @@ export default abstract class BaseWorld extends Phaser.Scene {
     }
 
     private onShutdown(): void {
-        this.scale.off("resize", this.handleResize, this)
+        this.scale.off("resize", this.handleResize, this);
     }
+
+    // ! =======================================================================
+    // ! WORLD COORDINATE SYSTEM
+    // ! =======================================================================
 
 
     protected getLocalTilePosition(tx: number, ty: number): { x: number; y: number } {
@@ -136,39 +149,9 @@ export default abstract class BaseWorld extends Phaser.Scene {
         return { x: isometric.isoX, y: isometric.isoY }
     }
 
-    protected getTileNode(tx: number, ty: number): TileNode | null {
-        if (tx < 0 || ty < 0 || tx >= this.worldSize || ty >= this.worldSize) {
-            return null;
-        }
-        return this.grid[tx]?.[ty] ?? null;
-    }
-
     protected getWorldCenterLocal(): { x: number; y: number } {
         const middlePoint = (this.worldSize - 1) / 2;
-        return this.getLocalTilePosition(middlePoint, middlePoint)
-    }
-
-    protected markOccupied(tx: number, ty: number, value = true): void {
-        const tile = this.getTileNode(tx, ty);
-        if (tile) tile.occupied = value;
-    }
-
-    protected isOccupied(tx: number, ty: number): boolean {
-        const tile = this.getTileNode(tx, ty);
-        return tile ? tile.occupied : true;
-    }
-
-    // * Can the entity pass the tile?
-    public isWalkable(tx: number, ty: number): boolean {
-        // If coordinate = negative, walkable is false
-        // If cordinate more size worldSize, walkable is false
-        if (tx < 0 || ty < 0 || tx >= this.worldSize || ty >= this.worldSize) {
-            return false;
-        }
-
-        const tile = this.getTileNode(tx, ty); //put the object's data
-        if (!tile) return false; //Null check
-        return tile.isTroughable && !tile.occupied; //return the isWalkable when the tile is troughable and not occupied
+        return this.getLocalTilePosition(middlePoint, middlePoint);
     }
 
     // * Pixel coordinate to tile grid
@@ -204,6 +187,44 @@ export default abstract class BaseWorld extends Phaser.Scene {
         return this.worldToTile(worldPoint.x, worldPoint.y);
     }
 
+    // ! =======================================================================
+    // ! GRID & NAVIGATION
+    // ! =======================================================================
+
+    protected getTileNode(tx: number, ty: number): TileNode | null {
+        if (tx < 0 || ty < 0 || tx >= this.worldSize || ty >= this.worldSize) {
+            return null;
+        }
+        return this.grid[tx]?.[ty] ?? null;
+    }
+
+    protected markOccupied(tx: number, ty: number, value = true): void {
+        const tile = this.getTileNode(tx, ty);
+        if (tile) tile.occupied = value;
+    }
+
+    protected isOccupied(tx: number, ty: number): boolean {
+        const tile = this.getTileNode(tx, ty);
+        return tile ? tile.occupied : true;
+    }
+
+    // * Can the entity pass the tile?
+    public isWalkable(tx: number, ty: number): boolean {
+        // If coordinate = negative, walkable is false
+        // If cordinate more size worldSize, walkable is false
+        if (tx < 0 || ty < 0 || tx >= this.worldSize || ty >= this.worldSize) {
+            return false;
+        }
+
+        const tile = this.getTileNode(tx, ty); //put the object's data
+        if (!tile) return false; //Null check
+        return tile.isTroughable && !tile.occupied; //return the isWalkable when the tile is troughable and not occupied
+    }
+
+    // ! =======================================================================
+    // ! OBJECT & ENTITY PLACEMENT
+    // ! =======================================================================
+
     protected placeDecoration(config: DecorConfig): Phaser.GameObjects.Image | null {
         const tile = this.getTileNode(config.tx, config.ty);
         if (!tile) return null;
@@ -236,8 +257,12 @@ export default abstract class BaseWorld extends Phaser.Scene {
 
         entity.setPosition(tile.worldX, tile.worldY);
         entity.setDepth(entity.y);
-        this.entityLayer.add(entity)
+        this.entityLayer.add(entity);
     }
+
+    // ! =======================================================================
+    // ! OVERRIDEABLE CONFIG (CONCRETE WORLD CONTEXT CONFIG)
+    // ! =======================================================================
 
     protected getBaseTileTexture(_tx: number, _ty: number): string {
         return "tile";
