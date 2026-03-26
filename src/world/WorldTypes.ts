@@ -56,3 +56,25 @@ export type DecorConfig = {
     depthOffset?: number;
     scale?: number;
 };
+
+// * Declarative data type for per-tile modification
+export interface TileModification {
+    tx: number;
+    ty: number;
+    tint?: number;
+    alpha?: number;
+    textureKey?: string;
+    scaleX?: number;
+    scaleY?: number;
+}
+
+// * Configuration contract 
+export interface MapConfig {
+    worldSize: number;
+    tileWidth: number;
+    tileHeight: number;
+    originX: number;
+    originY: number;
+    getBaseTileTexture: (tx: number, ty: number) => string;
+    tileModification: TileModification[];
+}
