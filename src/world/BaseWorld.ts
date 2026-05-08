@@ -2,7 +2,7 @@
 
 import Phaser from "phaser";
 import { IsoMath } from "../core/IsoMath";
-import type { TileNode, DecorConfig } from "./WorldTypes";
+import type { TileNode, DecorConfig, MapConfig } from "./WorldTypes";
 import { GridHelper } from '../core/GridHelper';
 
 
@@ -27,6 +27,8 @@ export default abstract class BaseWorld extends Phaser.Scene {
     protected readonly tileH: number = 16;   // tinggi tile penuh (pixel)
     protected readonly originX: number = 0;  // pixel X titik awal grid
     protected readonly originY: number = 0;  // pixel Y titik awal grid
+
+    protected abstract getMapConfig(): MapConfig;
 
     constructor(key: string) {
         super(key);

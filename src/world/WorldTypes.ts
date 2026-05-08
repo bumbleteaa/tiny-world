@@ -76,5 +76,6 @@ export interface MapConfig {
     originX: number;
     originY: number;
     getBaseTileTexture: (tx: number, ty: number) => string;
+    getBaseTileOrigin?: (tx: number, ty: number) => { x: number; y: number };
     tileModification: TileModification[];
 }
